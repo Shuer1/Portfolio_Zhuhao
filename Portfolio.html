@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏开发者作品集 | 个人简历</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- 自定义 Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#ec4899',
+                        accent: '#10b981',
+                        dark: '#0f172a',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        game: ['Orbitron', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(99, 102, 241, 0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.8), 0 0 30px rgba(236, 72, 153, 0.6)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 0 10px rgba(99, 102, 241, 0.8);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 0 15px rgba(99, 102, 241, 0.8), 0 0 30px rgba(236, 72, 153, 0.6);
+            }
+            .bg-game {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            }
+            .border-glow {
+                box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+            }
+            .border-glow:hover {
+                box-shadow: 0 0 15px rgba(99, 102, 241, 0.8), 0 0 25px rgba(236, 72, 153, 0.6);
+            }
+            .skill-bar {
+                height: 8px;
+                border-radius: 4px;
+                background: #1e293b;
+                overflow: hidden;
+            }
+            .skill-progress {
+                height: 100%;
+                border-radius: 4px;
+                background: linear-gradient(90deg, #6366f1, #ec4899);
+                transition: width 1.5s ease-in-out;
+            }
+            .game-card {
+                transition: all 0.3s ease;
+                transform-style: preserve-3d;
+                perspective: 1000px;
+            }
+            .game-card:hover {
+                transform: translateY(-10px) rotateX(5deg);
+            }
+            .game-card::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                padding: 2px;
+                background: linear-gradient(45deg, #6366f1, #ec4899, #10b981);
+                mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                mask-composite: subtract;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            .game-card:hover::after {
+                opacity: 1;
+            }
+            .nav-item {
+                position: relative;
+                transition: all 0.3s ease;
+            }
+            .nav-item::after {
+                content: '';
+                position: absolute;
+                bottom: -5px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, #6366f1, #ec4899);
+                transition: width 0.3s ease;
+            }
+            .nav-item:hover::after,
+            .nav-item.active::after {
+                width: 100%;
+            }
+            .cursor {
+                position: relative;
+            }
+            .cursor::after {
+                content: '|';
+                position: absolute;
+                right: -10px;
+                animation: blink 1s infinite;
+            }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+            .progress-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 4px;
+                background: transparent;
+                z-index: 100;
+            }
+            .progress-bar {
+                height: 100%;
+                background: linear-gradient(90deg, #6366f1, #ec4899);
+                width: 0%;
+            }
+            .achievement {
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.5s ease;
+            }
+            .achievement.unlocked {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .particle {
+                position: absolute;
+                border-radius: 50%;
+                pointer-events: none;
+                animation: particle-animation 1s ease-out forwards;
+            }
+            @keyframes particle-animation {
+                0% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: scale(0.2) translateY(-50px);
+                }
+            }
+        }
+    </style>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-game text-light font-sans overflow-x-hidden">
+    <!-- 进度条 -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="fixed top-0 left-0 w-full bg-dark/80 backdrop-blur-md z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <i class="fa fa-gamepad text-white text-xl"></i>
+                </div>
+                <span class="text-xl font-game font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">GameDevPortfolio</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="nav-item text-white hover:text-primary transition-colors duration-300 font-medium">首页</a>
+                <a href="#about" class="nav-item text-white hover:text-primary transition-colors duration-300 font-medium">关于我</a>
+                <a href="#skills" class="nav-item text-white hover:text-primary transition-colors duration-300 font-medium">技能</a>
+                <a href="#projects" class="nav-item text-white hover:text-primary transition-colors duration-300 font-medium">作品集</a>
+                <a href="#contact" class="nav-item text-white hover:text-primary transition-colors duration-300 font-medium">联系我</a>
+            </div>
+            <button class="md:hidden text-white focus:outline-none" id="menuBtn">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden bg-dark/95 backdrop-blur-md w-full absolute top-full left-0 py-4 px-4 hidden" id="mobileMenu">
+            <div class="flex flex-col space-y-4">
+                <a href="#home" class="text-white hover:text-primary transition-colors duration-300 font-medium py-2">首页</a>
+                <a href="#about" class="text-white hover:text-primary transition-colors duration-300 font-medium py-2">关于我</a>
+                <a href="#skills" class="text-white hover:text-primary transition-colors duration-300 font-medium py-2">技能</a>
+                <a href="#projects" class="text-white hover:text-primary transition-colors duration-300 font-medium py-2">作品集</a>
+                <a href="#contact" class="text-white hover:text-primary transition-colors duration-300 font-medium py-2">联系我</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 首页/欢迎区域 -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative pt-16 overflow-hidden">
+        <!-- 背景装饰 -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full filter blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/10 rounded-full filter blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 py-20 relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
+                    <div class="mb-6">
+                        <span class="inline-block px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/30 font-medium mb-4">
+                            <i class="fa fa-graduation-cap mr-2"></i>数字媒体技术专业 · 游戏开发
+                        </span>
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">你好，我是</span>
+                            <br>
+                            <span class="text-white text-shadow-lg" id="nameText">开发者</span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-lg mx-auto md:mx-0">
+                            我是一名热爱游戏开发的大四学生，专注于创造沉浸式游戏体验。有独立游戏开发实习经验，擅长游戏设计与编程。
+                        </p>
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
+                            <a href="#projects" class="px-8 py-3 bg-gradient-to-r from-primary to-secondary rounded-lg font-medium text-white hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 transform hover:-translate-y-1 border-glow text-center">
+                                <i class="fa fa-gamepad mr-2"></i>查看作品集
+                            </a>
+                            <a href="#contact" class="px-8 py-3 bg-transparent border border-primary/50 rounded-lg font-medium text-white hover:bg-primary/10 transition-all duration-300 transform hover:-translate-y-1 text-center">
+                                <i class="fa fa-envelope mr-2"></i>联系我
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80">
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary p-1 animate-pulse-slow"></div>
+                        <div class="absolute inset-1 rounded-full bg-dark flex items-center justify-center overflow-hidden">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/e69b75cbc8ac4446b4c7e13ba51eabe1~tplv-a9rns2rl98-image.image?rcl=20251202161100A1E813CC06E17806EF87&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1767255092&x-signature=A5mlmiUCmNNwF9P8KodcppSyBY8%3D" 
+                                 alt="个人头像" 
+                                 class="w-full h-full object-cover animate-float">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 游戏化元素：成就系统预览 -->
+            <div class="mt-20 bg-dark/50 backdrop-blur-md rounded-xl p-6 border border-gray-800 max-w-3xl mx-auto">
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="fa fa-trophy text-yellow-500 mr-2"></i>
+                    <span>游戏开发成就</span>
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="achievement unlocked bg-dark/70 p-4 rounded-lg text-center border border-gray-800">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-primary/20 flex items-center justify-center">
+                            <i class="fa fa-code text-primary text-xl"></i>
+                        </div>
+                        <h4 class="font-medium text-sm">游戏编程</h4>
+                        <p class="text-xs text-gray-400">掌握C# & Unity</p>
+                    </div>
+                    <div class="achievement unlocked bg-dark/70 p-4 rounded-lg text-center border border-gray-800">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-secondary/20 flex items-center justify-center">
+                            <i class="fa fa-paint-brush text-secondary text-xl"></i>
+                        </div>
+                        <h4 class="font-medium text-sm">游戏美术</h4>
+                        <p class="text-xs text-gray-400">UI/UX设计</p>
+                    </div>
+                    <div class="achievement unlocked bg-dark/70 p-4 rounded-lg text-center border border-gray-800">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-accent/20 flex items-center justify-center">
+                            <i class="fa fa-headphones text-accent text-xl"></i>
+                        </div>
+                        <h4 class="font-medium text-sm">音效设计</h4>
+                        <p class="text-xs text-gray-400">游戏音频制作</p>
+                    </div>
+                    <div class="achievement bg-dark/70 p-4 rounded-lg text-center border border-gray-800 opacity-50">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-700/50 flex items-center justify-center">
+                            <i class="fa fa-lock text-gray-500 text-xl"></i>
+                        </div>
+                        <h4 class="font-medium text-sm text-gray-400">更多成就</h4>
+                        <p class="text-xs text-gray-500">探索解锁</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 向下滚动指示 -->
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <a href="#about" class="text-white/70 hover:text-white transition-colors duration-300">
+                <i class="fa fa-chevron-down text-2xl"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 inline-block relative">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">关于我</span>
+                    <div class="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">了解我的教育背景、实习经历和游戏开发旅程</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                <div class="relative">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-xl blur opacity-50"></div>
+                    <div class="relative bg-dark rounded-xl overflow-hidden">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/31c6be32d5204ff9a446b249ef18afeb~tplv-a9rns2rl98-image.image?rcl=20251202161100A1E813CC06E17806EF87&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1767255092&x-signature=zINhVI1GZ5gFSRLA1YJuclvwOow%3D" 
+                             alt="游戏开发工作场景" 
+                             class="w-full h-auto rounded-xl">
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="space-y-6">
+                        <div class="bg-dark/50 backdrop-blur-md p-6 rounded-xl border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-4 flex items-center">
+                                <i class="fa fa-graduation-cap text-primary mr-3"></i>
+                                教育背景
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                        <i class="fa fa-university text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-white">数字媒体技术专业</h4>
+                                        <p class="text-gray-400">本科 · 2022 - 2026</p>
+                                        <p class="text-gray-300 mt-1">主修课程：游戏编程、游戏设计、3D建模、交互设计</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark/50 backdrop-blur-md p-6 rounded-xl border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-4 flex items-center">
+                                <i class="fa fa-briefcase text-secondary mr-3"></i>
+                                实习经历
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                        <i class="fa fa-gamepad text-secondary"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-white">独立游戏开发实习生</h4>
+                                        <p class="text-gray-400">2025年秋季实习</p>
+                                        <p class="text-gray-300 mt-1">参与了一款2D平台游戏的开发，负责游戏机制设计和核心功能编程</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark/50 backdrop-blur-md p-6 rounded-xl border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                            <h3 class="text-xl font-bold mb-4 flex items-center">
+                                <i class="fa fa-heart text-accent mr-3"></i>
+                                我的热情
+                            </h3>
+                            <p class="text-gray-300">
+                                我热爱创造能够带给玩家愉悦体验的游戏。从设计游戏机制到编写代码实现，再到优化用户体验，我享受游戏开发的每一个环节。我相信好的游戏不仅仅是娱乐，更是一种艺术表达和情感传递的媒介。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能 -->
+    <section id="skills" class="py-20 bg-dark/30 relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 inline-block relative">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">我的技能</span>
+                    <div class="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">游戏开发相关技能与专长</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <div class="bg-dark/50 backdrop-blur-md p-6 rounded-xl border border-gray-800 mb-8">
+                        <h3 class="text-xl font-bold mb-6 flex items-center">
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/1af3104b0808406fb986b22dc26041b4~tplv-a9rns2rl98-image.image?rcl=20251202161100A1E813CC06E17806EF87&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1767255099&x-signature=04ELYIpB8X3pc99CyWJnLG01xNo%3D" 
+                                 alt="技能树" 
+                                 class="w-8 h-8 mr-3">
+                            技能树
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-white">C# 编程</span>
+                                    <span class="text-primary">90%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="90%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-white">Unity 引擎</span>
+                                    <span class="text-primary">85%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="85%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-white">游戏设计</span>
+                                    <span class="text-primary">80%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="80%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-white">UI/UX 设计</span>
+                                    <span class="text-primary">75%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="75%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-white">音效设计</span>
+                                    <span class="text-primary">70%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="70%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-white">3D 建模</span>
+                                    <span class="text-primary">65%</span>
+                                </div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="bg-dark/50 backdrop-blur-md p-6 rounded-xl border border-gray-800 mb-8">
+                        <h3 class="text-xl font-bold mb-6 flex items-center">
+                            <i class="fa fa-cogs text-primary mr-3"></i>
+                            技术栈
+                        </h3>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div class="bg-dark/70 p-4 rounded-lg text-center border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                                <i class="fa fa-code text-2xl text-primary mb-2"></i>
+                                <h4 class="font-medium">C#</h4>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg text-center border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                                <i class="fa fa-gamepad text-2xl text-primary mb-2"></i>
+                                <h4 class="font-medium">Unity</h4>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg text-center border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                                <i class="fa fa-html5 text-2xl text-orange-500 mb-2"></i>
+                                <h4 class="font-medium">HTML5</h4>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg text-center border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                                <i class="fa fa-css3 text-2xl text-blue-500 mb-2"></i>
+                                <h4 class="font-medium">CSS3</h4>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg text-center border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                                <i class="fa fa-code text-2xl text-yellow-500 mb-2"></i>
+                                <h4 class="font-medium">JavaScript</h4>
+                            </div>
+                            
+                            <div class="bg-dark/70 p-4 rounded-lg text-center border border-gray-800 hover:border-primary/50 transition-all duration-300">
+                                <i class="fa fa-paint-brush text-2xl text-pink-500 mb-2"></i>
+                                <h4 class="font-medium">Photoshop</h4>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-dark/50 backdrop-blur-md p-6 rounded-xl border border-gray-800">
+                        <h3 class="text-xl font-bold mb-6 flex items-center">
+                            <i class="fa fa-star text-yellow-500 mr-3"></i>
+                            专业课程
+                        </h3>
+                        
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                <span>游戏编程基础</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                <span>游戏引擎原理</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                <span>游戏设计理论</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                <span>交互设计</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                <span>数字图像处理</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                <span>3D建模与动画</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 作品集 -->
+    <section id="projects" class="py-20 relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 inline-block relative">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">游戏作品集</span>
+                    <div class="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">展示我的游戏开发项目和作品</p>
+            </div>
+            
+            <!-- 游戏化元素：项目筛选器 -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="px-4 py-2 rounded-full bg-primary text-white font-medium filter-btn active" data-filter="all">
+                    全部项目
+                </button>
+                <button class="px-4 py-2 rounded-full bg-dark border border-gray-700 text-white font-medium hover:bg-primary/20 transition-colors duration-300 filter-btn" data-filter="2d">
+                    2D游戏
+                </button>
+                <button class="px-4 py-2 rounded-full bg-dark border border-gray-700 text-white font-medium hover:bg-primary/20 transition-colors duration-300 filter-btn" data-filter="3d">
+                    3D游戏
+                </button>
+                <button class="px-4 py-2 rounded-full bg-dark border border-gray-700 text-white font-medium hover:bg-primary/20 transition-colors duration-300 filter-btn" data-filter="mobile">
+                    移动端
+                </button>
+            </div>
+            
+            <!-- 项目网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 项目1 -->
+                <div class="game-card bg-dark/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-800 group relative project-item" data-category="2d">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/94060486ac3a11c83f730cf4d2012778~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=OqO5wOS0S6rqK7CcjkvSs%2FYoT%2Fk%3D" 
+                             alt="2D平台游戏" 
+                             class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-70"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="inline-block px-3 py-1 rounded-full bg-primary/80 text-white text-xs font-medium mb-2">
+                                2D平台游戏
+                            </span>
+                            <h3 class="text-xl font-bold text-white">奇幻冒险</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-400 text-sm mb-4">
+                            一款精美的2D平台跳跃游戏，玩家控制角色在奇幻世界中冒险，收集宝石并躲避敌人。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">Unity</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">C#</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">2D艺术</span>
+                        </div>
+                        <button class="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg transition-colors duration-300 flex items-center justify-center project-details-btn" data-id="1">
+                            <i class="fa fa-info-circle mr-2"></i>查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 项目2 -->
+                <div class="game-card bg-dark/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-800 group relative project-item" data-category="3d">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/a7e85aee01f7ba42056973c69d907e45~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=9VNpmr%2BhNiJRdM6vRZIY31Sy%2FZ0%3D" 
+                             alt="3D冒险游戏" 
+                             class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-70"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="inline-block px-3 py-1 rounded-full bg-secondary/80 text-white text-xs font-medium mb-2">
+                                3D冒险游戏
+                            </span>
+                            <h3 class="text-xl font-bold text-white">海岛探索</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-400 text-sm mb-4">
+                            一款开放世界3D冒险游戏，玩家在神秘海岛上探索古老遗迹，解决谜题并发现隐藏宝藏。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">Unity</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">C#</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">3D建模</span>
+                        </div>
+                        <button class="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg transition-colors duration-300 flex items-center justify-center project-details-btn" data-id="2">
+                            <i class="fa fa-info-circle mr-2"></i>查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 项目3 -->
+                <div class="game-card bg-dark/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-800 group relative project-item" data-category="mobile">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/a9b52288b3df0c1616e2f57f0a80c365~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=2fBSaUdtUIRwN0GRqZGsP3h2uEU%3D" 
+                             alt="移动游戏" 
+                             class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-70"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="inline-block px-3 py-1 rounded-full bg-accent/80 text-white text-xs font-medium mb-2">
+                                移动游戏
+                            </span>
+                            <h3 class="text-xl font-bold text-white">星际探险</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-400 text-sm mb-4">
+                            一款太空主题的休闲移动游戏，玩家控制宇宙飞船在星际间穿梭，收集资源并躲避障碍物。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">Unity</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">C#</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">移动开发</span>
+                        </div>
+                        <button class="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg transition-colors duration-300 flex items-center justify-center project-details-btn" data-id="3">
+                            <i class="fa fa-info-circle mr-2"></i>查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 项目4 -->
+                <div class="game-card bg-dark/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-800 group relative project-item" data-category="2d">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-doubao-search-sign.byteimg.com/labis/691a72b02b4c0632aa2c83eb08cbfc30~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=Xpn7r7jHpxNdhLDmwMDVWlH2GUc%3D" 
+                             alt="2D角色扮演游戏" 
+                             class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-70"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="inline-block px-3 py-1 rounded-full bg-primary/80 text-white text-xs font-medium mb-2">
+                                2D角色扮演
+                            </span>
+                            <h3 class="text-xl font-bold text-white">剑与魔法</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-400 text-sm mb-4">
+                            一款2D横版角色扮演游戏，玩家扮演一名剑士在魔法世界中冒险，与怪物战斗并提升能力。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">Unity</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">C#</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">像素艺术</span>
+                        </div>
+                        <button class="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg transition-colors duration-300 flex items-center justify-center project-details-btn" data-id="4">
+                            <i class="fa fa-info-circle mr-2"></i>查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 项目5 -->
+                <div class="game-card bg-dark/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-800 group relative project-item" data-category="3d">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/e6db62e8b601ce0d3309926d9888b600~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=EbSyv74KuFg0j9HiaKXZQQkSnV0%3D" 
+                             alt="3D解谜游戏" 
+                             class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-70"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="inline-block px-3 py-1 rounded-full bg-secondary/80 text-white text-xs font-medium mb-2">
+                                3D解谜游戏
+                            </span>
+                            <h3 class="text-xl font-bold text-white">天空之城</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-400 text-sm mb-4">
+                            一款3D解谜游戏，玩家在悬浮的天空之城中探索，通过解决物理谜题来揭开城市的秘密。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">Unity</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">C#</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">物理引擎</span>
+                        </div>
+                        <button class="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg transition-colors duration-300 flex items-center justify-center project-details-btn" data-id="5">
+                            <i class="fa fa-info-circle mr-2"></i>查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 项目6 -->
+                <div class="game-card bg-dark/50 backdrop-blur-md rounded-xl overflow-hidden border border-gray-800 group relative project-item" data-category="mobile">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p11-doubao-search-sign.byteimg.com/labis/91034d66a064930578aee56983980a73~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=mGZInUfJZwnvX4TNK5d29klEPY4%3D" 
+                             alt="模拟游戏" 
+                             class="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent opacity-70"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="inline-block px-3 py-1 rounded-full bg-accent/80 text-white text-xs font-medium mb-2">
+                                模拟游戏
+                            </span>
+                            <h3 class="text-xl font-bold text-white">密室逃脱</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-400 text-sm mb-4">
+                            一款第一人称密室逃脱游戏，玩家需要寻找线索、解决谜题，最终逃出被锁住的房间。
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">Unity</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">C#</span>
+                            <span class="px-2 py-1 bg-dark rounded text-xs text-gray-300 border border-gray-700">VR兼容</span>
+                        </div>
+                        <button class="w-full py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg transition-colors duration-300 flex items-center justify-center project-details-btn" data-id="6">
+                            <i class="fa fa-info-circle mr-2"></i>查看详情
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我 -->
+    <section id="contact" class="py-20 bg-dark/30 relative">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 inline-block relative">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">联系我</span>
+                    <div class="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">如果您对我的作品感兴趣，或者有任何问题，欢迎联系我</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="bg-dark/50 backdrop-blur-md p-8 rounded-xl border border-gray-800">
+                    <h3 class="text-2xl font-bold mb-6 flex items-center">
+                        <i class="fa fa-envelope text-primary mr-3"></i>
+                        发送消息
+                    </h3>
+                    
+                    <form id="contactForm" class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">姓名 *</label>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white transition-all duration-300" required>
+                            <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-300 mb-2">邮箱 *</label>
+                            <input type="email" id="email" name="email" class="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white transition-all duration-300" required>
+                            <div id="email-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        </div>
+                        
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-300 mb-2">主题 *</label>
+                            <input type="text" id="subject" name="subject" class="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white transition-all duration-300" required>
+                            <div id="subject-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        </div>
+                        
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-300 mb-2">消息 *</label>
+                            <textarea id="message" name="message" rows="5" class="w-full px-4 py-3 bg-dark border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white transition-all duration-300" required></textarea>
+                            <div id="message-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        </div>
+                        
+                        <!-- 提交状态消息 -->
+                        <div id="formMessage" class="hidden p-4 rounded-lg"></div>
+                        
+                        <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-secondary rounded-lg text-white font-medium hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 transform hover:-translate-y-1">
+                            <i class="fa fa-paper-plane mr-2"></i>发送消息
+                        </button>
+                    </form>
+                </div>
+                
+                <div>
+                    <div class="bg-dark/50 backdrop-blur-md p-8 rounded-xl border border-gray-800 mb-8">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <i class="fa fa-address-card text-secondary mr-3"></i>
+                            联系信息
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center mr-4">
+                                    <i class="fa fa-envelope text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-400">邮箱</h4>
+                                    <p class="text-white">577266845@qq.com</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-secondary/20 flex items-center justify-center mr-4">
+                                    <i class="fa fa-phone text-secondary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-400">电话</h4>
+                                    <p class="text-white">+86 181 4628 9838</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center mr-4">
+                                    <i class="fa fa-map-marker text-accent text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-400">地址</h4>
+                                    <p class="text-white">中国，杭州市</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-dark/50 backdrop-blur-md p-8 rounded-xl border border-gray-800">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center">
+                            <i class="fa fa-share-alt text-accent mr-3"></i>
+                            社交媒体
+                        </h3>
+                        
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-12 h-12 rounded-full bg-[#1DA1F2]/20 flex items-center justify-center text-[#1DA1F2] hover:bg-[#1DA1F2]/30 transition-colors duration-300">
+                                <i class="fa fa-twitter text-xl"></i>
+                            </a>
+                            
+                            <a href="#" class="w-12 h-12 rounded-full bg-[#1877F2]/20 flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2]/30 transition-colors duration-300">
+                                <i class="fa fa-facebook text-xl"></i>
+                            </a>
+                            
+                            <a href="#" class="w-12 h-12 rounded-full bg-[#E4405F]/20 flex items-center justify-center text-[#E4405F] hover:bg-[#E4405F]/30 transition-colors duration-300">
+                                <i class="fa fa-instagram text-xl"></i>
+                            </a>
+                            
+                            <a href="#" class="w-12 h-12 rounded-full bg-[#0077B5]/20 flex items-center justify-center text-[#0077B5] hover:bg-[#0077B5]/30 transition-colors duration-300">
+                                <i class="fa fa-linkedin text-xl"></i>
+                            </a>
+                            
+                            <a href="#" class="w-12 h-12 rounded-full bg-[#FF0000]/20 flex items-center justify-center text-[#FF0000] hover:bg-[#FF0000]/30 transition-colors duration-300">
+                                <i class="fa fa-youtube-play text-xl"></i>
+                            </a>
+                            
+                            <a href="#" class="w-12 h-12 rounded-full bg-[#6e5494]/20 flex items-center justify-center text-[#6e5494] hover:bg-[#6e5494]/30 transition-colors duration-300">
+                                <i class="fa fa-github text-xl"></i>
+                            </a>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h4 class="font-medium text-gray-400 mb-4">下载简历</h4>
+                            <a href="#" class="inline-flex items-center px-6 py-3 bg-dark border border-gray-700 rounded-lg text-white hover:bg-primary/20 transition-colors duration-300">
+                                <i class="fa fa-download mr-2"></i>
+                                <span>简历.pdf</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark py-10 border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                            <i class="fa fa-gamepad text-white text-xl"></i>
+                        </div>
+                        <span class="text-xl font-game font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">GameDevPortfolio</span>
+                    </div>
+                    <p class="text-gray-500 max-w-md">
+                        我是一名热爱游戏开发的大四学生，专注于创造沉浸式游戏体验。
+                    </p>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row space-y-6 sm:space-y-0 sm:space-x-10">
+                    <div>
+                        <h4 class="text-white font-bold mb-4">导航</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#home" class="text-gray-500 hover:text-primary transition-colors duration-300">首页</a></li>
+                            <li><a href="#about" class="text-gray-500 hover:text-primary transition-colors duration-300">关于我</a></li>
+                            <li><a href="#skills" class="text-gray-500 hover:text-primary transition-colors duration-300">技能</a></li>
+                            <li><a href="#projects" class="text-gray-500 hover:text-primary transition-colors duration-300">作品集</a></li>
+                            <li><a href="#contact" class="text-gray-500 hover:text-primary transition-colors duration-300">联系我</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-white font-bold mb-4">技能</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300">游戏编程</a></li>
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300">Unity 开发</a></li>
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300">游戏设计</a></li>
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300">UI/UX 设计</a></li>
+                            <li><a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300">音效设计</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">
+                    &copy; 2025 Zhuhao_Shuer. 保留所有权利。
+                </p>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300 text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-500 hover:text-primary transition-colors duration-300 text-sm">使用条款</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 项目详情模态框 -->
+    <div id="projectModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-dark border border-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-white" id="modalTitle">项目标题</h3>
+                    <button id="closeModal" class="text-gray-400 hover:text-white transition-colors duration-300">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div id="modalContent">
+                    <!-- 动态内容将通过JavaScript填充 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 项目数据
+        const projectsData = [
+            {
+                id: 1,
+                title: "奇幻冒险",
+                category: "2d",
+                description: "一款精美的2D平台跳跃游戏，玩家控制角色在奇幻世界中冒险，收集宝石并躲避敌人。游戏采用手绘风格的美术设计，配合流畅的动画效果，为玩家带来沉浸式的游戏体验。",
+                features: [
+                    "精心设计的2D平台关卡",
+                    "流畅的角色动画和控制",
+                    "多样化的敌人类型",
+                    "收集系统和成就机制",
+                    "精美的手绘艺术风格"
+                ],
+                technologies: ["Unity", "C#", "Aseprite", "FMOD"],
+                screenshots: [
+                    "https://p11-doubao-search-sign.byteimg.com/labis/94060486ac3a11c83f730cf4d202161100A1E813CC06E17806EF87&rk3s=8e244e95&rrcfp=f06b921b&x-expires=1767255099&x-signature=04ELYIpB8X3pc99CyWJnLG01xNo%3D"
+                ],
+                role: "主程序 & 游戏设计师",
+                duration: "3个月",
+                link: "#"
+            },
+            {
+                id: 2,
+                title: "海岛探索",
+                category: "3d",
+                description: "一款开放世界3D冒险游戏，玩家在神秘海岛上探索古老遗迹，解决谜题并发现隐藏宝藏。游戏采用低多边形艺术风格，结合动态天气系统和昼夜循环，创造出一个生动的游戏世界。",
+                features: [
+                    "开放世界探索",
+                    "谜题解决机制",
+                    "动态天气系统",
+                    "昼夜循环",
+                    "收集与合成系统"
+                ],
+                technologies: ["Unity", "C#", "Blender", "Substance Painter"],
+                screenshots: [
+                    "https://p11-doubao-search-sign.byteimg.com/labis/a7e85aee01f7ba42056973c69d907e45~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=9VNpmr%2BhNiJRdM6vRZIY31Sy%2FZ0%3D"
+                ],
+                role: "游戏设计师 & 3D艺术家",
+                duration: "4个月",
+                link: "#"
+            },
+            {
+                id: 3,
+                title: "星际探险",
+                category: "mobile",
+                description: "一款太空主题的休闲移动游戏，玩家控制宇宙飞船在星际间穿梭，收集资源并躲避障碍物。游戏采用简洁的控制方式，适合各年龄段玩家，同时具有深度的升级系统和排行榜功能。",
+                features: [
+                    "简单直观的触控操作",
+                    "丰富的飞船升级系统",
+                    "每日任务和挑战",
+                    "全球排行榜",
+                    "精美的太空视觉效果"
+                ],
+                technologies: ["Unity", "C#", "Mobile SDK", "Adobe Illustrator"],
+                screenshots: [
+                    "https://p26-doubao-search-sign.byteimg.com/labis/a9b52288b3df0c1616e2f57f0a80c365~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=2fBSaUdtUIRwN0GRqZGsP3h2uEU%3D"
+                ],
+                role: "主程序 & UI设计师",
+                duration: "2个月",
+                link: "#"
+            },
+            {
+                id: 4,
+                title: "剑与魔法",
+                category: "2d",
+                description: "一款2D横版角色扮演游戏，玩家扮演一名剑士在魔法世界中冒险，与怪物战斗并提升能力。游戏采用像素艺术风格，结合深度的角色定制和技能树系统，为玩家提供丰富的游戏体验。",
+                features: [
+                    "深度角色定制",
+                    "技能树系统",
+                    "丰富的敌人类型",
+                    " Boss战",
+                    "支线任务系统"
+                ],
+                technologies: ["Unity", "C#", "PyxelEdit", "FL Studio"],
+                screenshots: [
+                    "https://p26-doubao-search-sign.byteimg.com/labis/691a72b02b4c0632aa2c83eb08cbfc30~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=Xpn7r7jHpxNdhLDmwMDVWlH2GUc%3D"
+                ],
+                role: "游戏设计师 & 像素艺术家",
+                duration: "5个月",
+                link: "#"
+            },
+            {
+                id: 5,
+                title: "天空之城",
+                category: "3d",
+                description: "一款3D解谜游戏，玩家在悬浮的天空之城中探索，通过解决物理谜题来揭开城市的秘密。游戏采用独特的视觉风格，结合创新的游戏机制，为玩家带来全新的解谜体验。",
+                features: [
+                    "基于物理的谜题",
+                    "重力操控机制",
+                    "环境互动元素",
+                    "沉浸式音效设计",
+                    "引人入胜的故事剧情"
+                ],
+                technologies: ["Unity", "C#", "Blender", "Wwise"],
+                screenshots: [
+                    "https://p11-doubao-search-sign.byteimg.com/labis/e6db62e8b601ce0d3309926d9888b600~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=EbSyv74KuFg0j9HiaKXZQQkSnV0%3D"
+                ],
+                role: "主程序 & 关卡设计师",
+                duration: "4个月",
+                link: "#"
+            },
+            {
+                id: 6,
+                title: "密室逃脱",
+                category: "mobile",
+                description: "一款第一人称密室逃脱游戏，玩家需要寻找线索、解决谜题，最终逃出被锁住的房间。游戏采用写实的3D画面，配合沉浸式音效设计，为玩家带来紧张刺激的逃脱体验。",
+                features: [
+                    "写实3D画面",
+                    "沉浸式音效",
+                    "多样化谜题设计",
+                    "提示系统",
+                    "多个关卡和难度级别"
+                ],
+                technologies: ["Unity", "C#", "3ds Max", "Audacity"],
+                screenshots: [
+                    "https://p11-doubao-search-sign.byteimg.com/labis/91034d66a064930578aee56983980a73~tplv-be4g95zd3a-image.jpeg?rk3s=542c0f93&x-expires=1780215073&x-signature=mGZInUfJZwnvX4TNK5d29klEPY4%3D"
+                ],
+                role: "游戏设计师 & 音效设计师",
+                duration: "3个月",
+                link: "#"
+            }
+        ];
+
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化GSAP ScrollTrigger
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // 进度条
+            const progressBar = document.getElementById('progressBar');
+            window.addEventListener('scroll', function() {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+            
+            // 导航栏滚动效果
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('py-2');
+                    navbar.classList.remove('py-4');
+                } else {
+                    navbar.classList.add('py-4');
+                    navbar.classList.remove('py-2');
+                }
+            });
+            
+            // 移动端菜单
+            const menuBtn = document.getElementById('menuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            menuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 关闭移动端菜单
+                    mobileMenu.classList.add('hidden');
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 打字机效果
+            const nameText = document.getElementById('nameText');
+            const name = "小明";
+            let i = 0;
+            
+            function typeWriter() {
+                if (i < name.length) {
+                    nameText.textContent = name.substring(0, i + 1);
+                    i++;
+                    setTimeout(typeWriter, 200);
+                }
+            }
+            
+            setTimeout(typeWriter, 1000);
+            
+            // 技能条动画
+            const skillBars = document.querySelectorAll('.skill-progress');
+            
+            gsap.utils.toArray('.skill-progress').forEach(bar => {
+                ScrollTrigger.create({
+                    trigger: bar,
+                    start: "top 80%",
+                    onEnter: () => {
+                        bar.style.width = bar.dataset.width;
+                    }
+                });
+            });
+            
+            // 成就解锁动画
+            gsap.utils.toArray('.achievement').forEach(achievement => {
+                ScrollTrigger.create({
+                    trigger: achievement,
+                    start: "top 80%",
+                    onEnter: () => {
+                        achievement.classList.add('unlocked');
+                    }
+                });
+            });
+            
+            // 项目筛选
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const projectItems = document.querySelectorAll('.project-item');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的active类
+                    filterBtns.forEach(b => {
+                        b.classList.remove('active', 'bg-primary');
+                        b.classList.add('bg-dark', 'border', 'border-gray-700', 'hover:bg-primary/20');
+                    });
+                    
+                    // 添加当前按钮的active类
+                    this.classList.add('active', 'bg-primary');
+                    this.classList.remove('bg-dark', 'border', 'border-gray-700', 'hover:bg-primary/20');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    projectItems.forEach(item => {
+                        if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                            item.style.display = 'block';
+                            gsap.from(item, {
+                                opacity: 0,
+                                y: 20,
+                                duration: 0.5
+                            });
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // 项目详情模态框
+            const projectDetailsBtns = document.querySelectorAll('.project-details-btn');
+            const projectModal = document.getElementById('projectModal');
+            const closeModal = document.getElementById('closeModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            projectDetailsBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const projectId = parseInt(this.getAttribute('data-id'));
+                    const project = projectsData.find(p => p.id === projectId);
+                    
+                    if (project) {
+                        modalTitle.textContent = project.title;
+                        
+                        let content = `
+                            <div class="mb-6">
+                                <img src="${project.screenshots[0]}" alt="${project.title}" class="w-full h-64 object-cover rounded-lg">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h4 class="text-xl font-bold mb-3 text-primary">项目描述</h4>
+                                <p class="text-gray-300">${project.description}</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <h4 class="text-xl font-bold mb-3 text-secondary">主要功能</h4>
+                                    <ul class="space-y-2">
+                        `;
+                        
+                        project.features.forEach(feature => {
+                            content += `
+                                <li class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-3"></i>
+                                    <span class="text-gray-300">${feature}</span>
+                                </li>
+                            `;
+                        });
+                        
+                        content += `
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-xl font-bold mb-3 text-accent">技术栈</h4>
+                                    <div class="flex flex-wrap gap-2">
+                        `;
+                        
+                        project.technologies.forEach(tech => {
+                            content += `
+                                <span class="px-3 py-1 bg-dark rounded-full text-gray-300 border border-gray-700">${tech}</span>
+                            `;
+                        });
+                        
+                        content += `
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <h4 class="text-lg font-bold mb-2 text-gray-300">我的角色</h4>
+                                    <p class="text-gray-400">${project.role}</p>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="text-lg font-bold mb-2 text-gray-300">开发周期</h4>
+                                    <p class="text-gray-400">${project.duration}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="${project.link}" target="_blank" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary to-secondary rounded-lg text-white hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 transform hover:-translate-y-1">
+                                    <i class="fa fa-external-link mr-2"></i>
+                                    <span>查看项目</span>
+                                </a>
+                            </div>
+                        `;
+                        
+                        modalContent.innerHTML = content;
+                        projectModal.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    }
+                });
+            });
+            
+            closeModal.addEventListener('click', function() {
+                projectModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // 点击模态框外部关闭
+            projectModal.addEventListener('click', function(e) {
+                if (e.target === projectModal) {
+                    projectModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // 联系表单提交
+            const contactForm = document.getElementById('contactForm');
+            const formMessage = document.getElementById('formMessage');
+            
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 清除之前的错误消息
+                clearErrors();
+                
+                // 获取表单数据
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const subject = document.getElementById('subject').value.trim();
+                const message = document.getElementById('message').value.trim();
+                
+                // 验证表单数据
+                let isValid = true;
+                
+                if (!name) {
+                    showError('name', '请输入您的姓名');
+                    isValid = false;
+                }
+                
+                if (!email) {
+                    showError('email', '请输入您的邮箱地址');
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    showError('email', '请输入有效的邮箱地址');
+                    isValid = false;
+                }
+                
+                if (!subject) {
+                    showError('subject', '请输入消息主题');
+                    isValid = false;
+                }
+                
+                if (!message) {
+                    showError('message', '请输入您的消息');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    return;
+                }
+                
+                // 显示提交状态
+                const submitButton = contactForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>发送中...';
+                submitButton.disabled = true;
+                
+                // 使用Fetch API发送数据
+                // 注意：你需要将下面的YOUR_FORM_ID替换为你自己的Formspree表单ID
+                fetch('https://formspree.io/f/YOUR_FORM_ID', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        subject: subject,
+                        message: message
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // 成功发送
+                        showMessage('消息发送成功！我会尽快回复您。', 'success');
+                        submitButton.innerHTML = '<i class="fa fa-check mr-2"></i>发送成功!';
+                        setTimeout(() => {
+                            submitButton.innerHTML = originalButtonText;
+                            submitButton.disabled = false;
+                            contactForm.reset();
+                        }, 2000);
+                    } else {
+                        // 发送失败
+                        throw new Error('Network response was not ok.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage('发送失败，请稍后再试。', 'error');
+                    submitButton.innerHTML = originalButtonText;
+                    submitButton.disabled = false;
+                });
+            });
+            
+            // 显示错误消息
+            function showError(field, message) {
+                const errorElement = document.getElementById(field + '-error');
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+                
+                // 添加红色边框到输入字段
+                document.getElementById(field).classList.add('border-red-500');
+            }
+            
+            // 清除所有错误消息
+            function clearErrors() {
+                const errorElements = document.querySelectorAll('[id$="-error"]');
+                errorElements.forEach(element => {
+                    element.classList.add('hidden');
+                    element.textContent = '';
+                });
+                
+                // 移除输入字段的红色边框
+                const inputElements = document.querySelectorAll('#contactForm input, #contactForm textarea');
+                inputElements.forEach(element => {
+                    element.classList.remove('border-red-500');
+                });
+            }
+            
+            // 验证邮箱格式
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+            
+            // 显示消息函数
+            function showMessage(message, type) {
+                formMessage.textContent = message;
+                formMessage.className = 'p-4 rounded-lg ';
+                
+                if (type === 'success') {
+                    formMessage.classList.add('bg-green-900/50', 'text-green-400', 'border', 'border-green-800');
+                } else if (type === 'error') {
+                    formMessage.classList.add('bg-red-900/50', 'text-red-400', 'border', 'border-red-800');
+                }
+                
+                formMessage.classList.remove('hidden');
+                
+                // 5秒后自动隐藏消息
+                setTimeout(() => {
+                    formMessage.classList.add('hidden');
+                }, 5000);
+            }
+            
+            // 实时验证
+            document.getElementById('name').addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    showError('name', '请输入您的姓名');
+                } else {
+                    clearFieldError('name');
+                }
+            });
+            
+            document.getElementById('email').addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    showError('email', '请输入您的邮箱地址');
+                } else if (!isValidEmail(this.value.trim())) {
+                    showError('email', '请输入有效的邮箱地址');
+                } else {
+                    clearFieldError('email');
+                }
+            });
+            
+            document.getElementById('subject').addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    showError('subject', '请输入消息主题');
+                } else {
+                    clearFieldError('subject');
+                }
+            });
+            
+            document.getElementById('message').addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    showError('message', '请输入您的消息');
+                } else {
+                    clearFieldError('message');
+                }
+            });
+            
+            // 清除特定字段的错误
+            function clearFieldError(field) {
+                const errorElement = document.getElementById(field + '-error');
+                errorElement.classList.add('hidden');
+                errorElement.textContent = '';
+                document.getElementById(field).classList.remove('border-red-500');
+            }
+            
+            // 游戏化元素：点击粒子效果
+            document.addEventListener('click', function(e) {
+                // 只在特定区域添加粒子效果
+                if (e.target.closest('#home') || e.target.closest('#about') || e.target.closest('#skills') || e.target.closest('#projects') || e.target.closest('#contact')) {
+                    createParticles(e.clientX, e.clientY);
+                }
+            });
+            
+            function createParticles(x, y) {
+                const colors = ['#6366f1', '#ec4899', '#10b981'];
+                
+                for (let i = 0; i < 5; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    // 随机大小和颜色
+                    const size = Math.random() * 10 + 5;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.backgroundColor = color;
+                    
+                    // 随机位置
+                    particle.style.left = `${x - size / 2}px`;
+                    particle.style.top = `${y - size / 2}px`;
+                    
+                    // 随机初始速度
+                    const vx = (Math.random() - 0.5) * 10;
+                    const vy = (Math.random() - 0.5) * 10 - 5;
+                    
+                    particle.style.setProperty('--vx', `${vx}px`);
+                    particle.style.setProperty('--vy', `${vy}px`);
+                    
+                    document.body.appendChild(particle);
+                    
+                    // 动画结束后移除
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 1000);
+                }
+            }
+            
+            // 初始化动画
+            gsap.from('.nav-item', {
+                opacity: 0,
+                y: -20,
+                stagger: 0.1,
+                duration: 0.5,
+                delay: 0.5
+            });
+            
+            gsap.from('#home h1', {
+                opacity: 0,
+                y: 30,
+                duration: 0.8,
+                delay: 0.8
+            });
+            
+            gsap.from('#home p', {
+                opacity: 0,
+                y: 20,
+                duration: 0.8,
+                delay: 1.2
+            });
+            
+            gsap.from('#home .btn', {
+                opacity: 0,
+                y: 20,
+                stagger: 0.2,
+                duration: 0.8,
+                delay: 1.5
+            });
+        });
+    </script>
+</body>
+</html>
